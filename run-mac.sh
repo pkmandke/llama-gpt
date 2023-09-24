@@ -2,24 +2,24 @@
 set -e
 
 # Define a function to refresh the source of .zshrc or .bashrc
-source_shell_rc() {
-    # Source .zshrc or .bashrc
-    if [ -f ~/.zshrc ]; then
-        source ~/.zshrc
-    elif [ -f ~/.bashrc ]; then
-        source ~/.bashrc
-    else
-        echo "No .bashrc or .zshrc file found."
-    fi
-}
-
-# Define a function to install conda with Miniforge3
-install_conda() {
-    # Download Miniforge3
-    curl -L -o /tmp/Miniforge3.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
-    bash /tmp/Miniforge3.sh
-    source_shell_rc
-}
+#source_shell_rc() {
+#    # Source .zshrc or .bashrc
+#    if [ -f ~/.zshrc ]; then
+#        source ~/.zshrc
+#    elif [ -f ~/.bashrc ]; then
+#        source ~/.bashrc
+#    else
+#        echo "No .bashrc or .zshrc file found."
+#    fi
+#}
+#
+## Define a function to install conda with Miniforge3
+#install_conda() {
+#    # Download Miniforge3
+#    curl -L -o /tmp/Miniforge3.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
+#    bash /tmp/Miniforge3.sh
+#    source_shell_rc
+#}
 
 # Define a function to install a specific version of llama-cpp-python
 install_llama_cpp_python() {
@@ -37,7 +37,7 @@ install_llama_cpp_python() {
     fi
 }
 
-source_shell_rc
+# source_shell_rc
 
 # Check if the platform is MacOS and the architecture is arm64
 if [[ "$(uname)" != "Darwin" ]] || [[ "$(uname -m)" != "arm64" ]]; then
@@ -84,20 +84,20 @@ fi
 
 
 # Check if the conda environment 'llama-gpt' exists
-if conda env list | grep -q 'llama-gpt'; then
-    echo "Conda environment 'llama-gpt' already exists."
-else
-    echo "Creating a conda environment called 'llama-gpt'..."
-    conda create -n llama-gpt python=$(python3 --version | cut -d ' ' -f 2)
-fi
-
-# Check if the conda environment 'llama-gpt' is active
-if [[ "$(conda info --envs | grep '*' | awk '{print $1}')" != "llama-gpt" ]]; then
-    echo "Activating the conda environment 'llama-gpt'..."
-    conda activate llama-gpt
-else
-    echo "Conda environment 'llama-gpt' is already active."
-fi
+# if conda env list | grep -q 'llama-gpt'; then
+#     echo "Conda environment 'llama-gpt' already exists."
+# else
+#     echo "Creating a conda environment called 'llama-gpt'..."
+#     conda create -n llama-gpt python=$(python3 --version | cut -d ' ' -f 2)
+# fi
+# 
+# # Check if the conda environment 'llama-gpt' is active
+# if [[ "$(conda info --envs | grep '*' | awk '{print $1}')" != "llama-gpt" ]]; then
+#     echo "Activating the conda environment 'llama-gpt'..."
+#     conda activate llama-gpt
+# else
+#     echo "Conda environment 'llama-gpt' is already active."
+# fi
 
 # Parse command line arguments for --model
 while [[ "$#" -gt 0 ]]; do
@@ -226,6 +226,12 @@ export MODEL
 export N_GQA
 export DEFAULT_SYSTEM_PROMPT
 
+# check if docker engine is running: https://stackoverflow.com/a/55283209
+if ! docker info > /dev/null 2>&1; then
+  echo "This script uses docker, and it isn't running - please start docker and try again!"
+  exit 1
+fi
+
 # Run docker-compose with the macOS yml file
 docker compose -f ./docker-compose-mac.yml up --remove-orphans --build &
 
@@ -238,8 +244,8 @@ stop_commands() {
     docker compose -f ./docker-compose-mac.yml down
     echo "Stopping python server..."
     pkill -f "python3 -m llama_cpp.server"
-    echo "Deactivating conda environment..."
-    conda deactivate
+    # echo "Deactivating conda environment..."
+    # conda deactivate
     echo "All processes stopped."
 }
 
