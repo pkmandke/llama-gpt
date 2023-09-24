@@ -84,6 +84,12 @@ git clone https://github.com/getumbrel/llama-gpt.git
 cd llama-gpt
 ```
 
+Create a conda environment
+```shell
+conda create -n llama-gpt python=$(python3 --version | cut -d ' ' -f 2)
+conda activate llama-gpt
+```
+
 Run LlamaGPT with the following command:
 
 ```
